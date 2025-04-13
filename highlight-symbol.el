@@ -99,6 +99,7 @@
 
 (require 'thingatpt)
 (eval-when-compile (require 'cl))
+(require 'cl-lib)
 
 (push "^No symbol at point$" debug-ignored-errors)
 
@@ -204,7 +205,9 @@ message after navigation commands."
 (define-minor-mode highlight-symbol-mode
   "Minor mode that highlights the symbol under point throughout the buffer.
 Highlighting takes place after `highlight-symbol-idle-delay'."
-  nil " hl-s" nil
+  :init-value nil
+  :lighter " hl-s"
+  :keymap nil
   (if highlight-symbol-mode
       ;; on
       (progn
@@ -247,7 +250,7 @@ element in of `highlight-symbol-faces'."
   (let ((color (nth highlight-symbol-color-index
                     highlight-symbol-colors)))
     (if color ;; wrap
-        (incf highlight-symbol-color-index)
+        (cl-incf highlight-symbol-color-index)
       (setq highlight-symbol-color-index 1
             color (car highlight-symbol-colors)))
     color))
@@ -364,16 +367,12 @@ When called interactively, toggle `highlight-symbol-nav-mode'.
 With prefix ARG, enable `highlight-symbol-nav-mode' if ARG is
 positive, otherwise disable it.
 
-When called from Lisp, enable `highlight-symbol-nav-mode' if ARG
-is omitted, nil or positive.  If ARG is `toggle', toggle
-`highlight-symbol-nav-mode'.  Otherwise behave as if called
-interactively.
+In `highlight-symbol-nav-mode' provide key bindings to navigate
+between occurrences of the symbol at point in the current buffer.
 
-In `highlight-symbol-nav-mode' provide the following key bindings
-to navigate between occurrences of the symbol at point in the
-current buffer.
-
-\\{highlight-symbol-nav-mode-map}")
+\\{highlight-symbol-nav-mode-map}"
+  :lighter nil
+  :keymap highlight-symbol-nav-mode-map)
 
 ;;;###autoload
 (defun highlight-symbol-query-replace (replacement)
